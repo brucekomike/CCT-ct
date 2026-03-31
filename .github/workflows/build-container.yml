@@ -1,0 +1,93 @@
+name: Build and Push Container Image
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 0 * * 0'
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  detect-dockerfiles:
+    name: Detect Dockerfiles
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.find.outputs.matrix }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Find all Dockerfiles
+        id: find
+        run: |
+          matrix=$(find . -type f -name "Dockerfile*" -not -path "./.git/*" | sort | \
+            jq -Rsc '[
+              split("\n")[] | select(length > 0) | . as $f |
+              (. | split("/")[-1]) as $name |
+              (if $name == "Dockerfile" then "" else "-" + ($name | ltrimstr("Dockerfile.")) end) as $suffix |
+              {"dockerfile": $f, "suffix": $suffix}
+            ] | {include: .}')
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  build-and-push:
+    name: Build and Push (${{ github.repository }}${{ matrix.suffix }})
+    needs: detect-dockerfiles
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-dockerfiles.outputs.matrix) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}${{ matrix.suffix }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=,format=short
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push container image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
+          cache-to: type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+

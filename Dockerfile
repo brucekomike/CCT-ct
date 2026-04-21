@@ -40,7 +40,13 @@ RUN conda create -n tf_gpu_env python=3.6 -y  # <-- 更改为 python=3.6
 RUN conda init bash
 SHELL ["conda", "run", "-n", "tf_gpu_env", "/bin/bash", "-c"]
 RUN conda install -c anaconda tensorflow-gpu=1.15 -y && \
+    pip install numpy==1.19.1 opencv-python==3.4.3.18 && \
     conda clean -a -y
+
+# 默认使用 tf_gpu_env（包括 code-server 终端）
+ENV PATH="/opt/conda/envs/tf_gpu_env/bin:/opt/conda/bin:$PATH"
+ENV CONDA_DEFAULT_ENV=tf_gpu_env
+RUN echo ". /opt/conda/etc/profile.d/conda.sh && conda activate tf_gpu_env" >> /root/.bashrc
 
 # 安装 code-server
 

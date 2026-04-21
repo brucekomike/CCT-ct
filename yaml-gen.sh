@@ -7,18 +7,26 @@ if [ "$1" = "" ]; then
 fi
 servers=$1
 port_start=$2
-image_name=${3-"ghcr.io/brucekomike/cct-ct:latest"}
-filename=${4-"docker-compose.yaml"}
+image_name=${3:-"ghcr.io/brucekomike/cct-ct:latest"}
+filename=${4:-"docker-compose.yaml"}
 
-echo "services:" > $filename
-for i in $(seq 1 $servers); do
+echo "services:" > "$filename"
+for i in $(seq 1 "$servers"); do
     port=$((port_start + i - 1))
-    echo "  env$i:" >> $filename
-    echo "    image: $image_name" >> $filename
-    echo "    ports:" >> $filename
-    echo "      - \"$port:8080\"" >> $filename
-    echo "    environment:" >> $filename
-    echo "      - PASSWORD=code$port" >> $filename
-    echo "    volumes:" >> $filename
-    echo "      - ./env$i:/root/Workspace" >> $filename
+    echo "  env$i:" >> "$filename"
+    echo "    image: $image_name" >> "$filename"
+    echo "    runtime: nvidia" >> "$filename"
+    echo "    ports:" >> "$filename"
+    echo "      - \"$port:8080\"" >> "$filename"
+    echo "    environment:" >> "$filename"
+    echo "      - PASSWORD=code$port" >> "$filename"
+    echo "    volumes:" >> "$filename"
+    echo "      - ./env$i:/root/Workspace" >> "$filename"
+    echo "    deploy:" >> "$filename"
+    echo "      resources:" >> "$filename"
+    echo "        reservations:" >> "$filename"
+    echo "          devices:" >> "$filename"
+    echo "            - driver: nvidia" >> "$filename"
+    echo "              count: all" >> "$filename"
+    echo "              capabilities: [gpu]" >> "$filename"
 done

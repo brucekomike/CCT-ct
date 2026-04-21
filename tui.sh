@@ -12,15 +12,15 @@ fi
 
 case $choice in
     1)
-        mapfile -t form_values < <(dialog --stdout --title "Generate docker-compose.yaml" --form "Enter details:" 10 50 0 \
+        form_values=$(dialog --stdout --title "Generate docker-compose.yaml" --form "Enter details:" 10 50 0 \
             "Number of servers:" 1 1 "" 1 25 5 0 \
             "Starting port:" 2 1 "" 2 25 5 0 \
             "Image name (optional):" 3 1 "" 3 25 50 0 \
             "Filename (optional):" 4 1 "" 4 25 50 0)
-        servers=${form_values[0]}
-        port_start=${form_values[1]}
-        image_name=${form_values[2]}
-        filename=${form_values[3]}
+        servers=$(printf '%s\n' "$form_values" | sed -n '1p')
+        port_start=$(printf '%s\n' "$form_values" | sed -n '2p')
+        image_name=$(printf '%s\n' "$form_values" | sed -n '3p')
+        filename=$(printf '%s\n' "$form_values" | sed -n '4p')
         ./yaml-gen.sh "$servers" "$port_start" "$image_name" "$filename"
         ;;
     2)

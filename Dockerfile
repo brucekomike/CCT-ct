@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
     build-essential \
+    bash-completion \
     software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
@@ -41,6 +42,7 @@ RUN conda init bash
 SHELL ["conda", "run", "-n", "tf_gpu_env", "/bin/bash", "-c"]
 RUN conda install -c anaconda tensorflow-gpu=1.15 -y && \
     pip install numpy==1.19.1 opencv-python-headless==3.4.3.18 && \
+    pip install matplotlib==3.3.4 && \
     conda clean -a -y
 
 # 默认使用 tf_gpu_env（包括 code-server 终端）

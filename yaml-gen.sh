@@ -16,7 +16,9 @@ for i in $(seq 1 $servers); do
     echo "  env$i:" >> $filename
     echo "    image: $image_name" >> $filename
     echo "    ports:" >> $filename
-    echo "      - \"8080:$port\"" >> $filename
+    echo "      - \"$port:8080\"" >> $filename
     echo "    environment:" >> $filename
     echo "      - PASSWORD=code$port" >> $filename
+    echo "    volumes:" >> $filename
+    echo "      - ./env$i:/root/Workspace" >> $filename
 done

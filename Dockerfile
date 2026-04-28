@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     git \
     vim nano \
-    curl zip unzip 7z \
+    curl zip unzip p7z \
     ca-certificates \
     build-essential \
     bash-completion \

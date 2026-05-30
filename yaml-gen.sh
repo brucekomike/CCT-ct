@@ -1,14 +1,16 @@
 #!/bin/bash
 # docker compose file generator
-# usage: $0 <servers> <port_start> <image_name> <filename>
+# usage: $0 <servers> <port_start> [version] [image_name] [filename]
 if [ "$1" = "" ]; then
-    echo "Usage: $0 <servers> <port_start> [image_name] [filename]"
+    echo "Usage: $0 <servers> <port_start> [version] [image_name] [filename]"
+    echo "  version: 20.04 | 24.04 | 26.04 (default: 26.04)"
     exit 1
 fi
 servers=$1
 port_start=$2
-image_name=${3:-"ghcr.io/brucekomike/cct-ct:latest"}
-filename=${4:-"docker-compose.yaml"}
+version=${3:-"26.04"}
+image_name=${4:-"ghcr.io/brucekomike/cct-ct:$version"}
+filename=${5:-"docker-compose.yaml"}
 
 echo "services:" > "$filename"
 for i in $(seq 1 "$servers"); do
@@ -22,6 +24,7 @@ for i in $(seq 1 "$servers"); do
     echo "      - PASSWORD=code$port" >> "$filename"
     echo "    volumes:" >> "$filename"
     echo "      - ./env$i:/root/Workspace" >> "$filename"
+    echo "      - ./opt:/opt" >> "$filename"
     echo "    deploy:" >> "$filename"
     echo "      resources:" >> "$filename"
     echo "        reservations:" >> "$filename"

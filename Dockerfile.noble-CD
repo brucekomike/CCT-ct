@@ -26,7 +26,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 # 安装 code-server
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 # install claude-code
-RUN code-server --install-extension anthropic.claude-code
+RUN curl -fsSL https://claude.ai/install.sh | bash
 
 RUN pip install --no-cache-dir \
     tensorflow \

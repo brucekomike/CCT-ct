@@ -9,18 +9,21 @@ show_usage() {
     echo "  -p, --port <port>         Starting host port (default: 9001)"
     echo "  -n, --name <name>         Container base name (default: cct-ct)"
     echo "                            If name does not start with cct-ct, cct-ct- is prefixed"
+    echo "  -i, --image <image>       Image name suffix (default: cct-ct)"
+    echo "                            If image does not start with cct-ct, cct-ct- is prefixed"
     echo "  -v, --version <version>   Image tag version (default: main)"
     echo "  -f, --filename <file>     Output filename (default: docker-compose.yaml)"
     echo "  -s, --ssl                 Enable self-signed SSL certificates"
     echo "  -h, --help                Show this help message"
     echo ""
     echo "Legacy positional format is still supported:"
-    echo "  $0 <servers> <port_start> [version] [image_name] [filename] [ssl]"
+    echo "  $0 <servers> <port_start> [version] [image] [filename] [ssl]"
 }
 
 servers=5
 port_start=9001
 container_name_input="cct-ct"
+image_input="cct-ct"
 version="main"
 filename="docker-compose.yaml"
 ssl_enabled="false"
@@ -30,7 +33,7 @@ if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
     servers=$1
     port_start=$2
     version=${3:-"main"}
-    image_name=${4:-"ghcr.io/brucekomike/cct-ct:$version"}
+    image_input=${4:-"cct-ct"}
     filename=${5:-"docker-compose.yaml"}
     if [ "$6" = "ssl" ] || [ "$6" = "true" ]; then
         ssl_enabled="true"
@@ -48,6 +51,10 @@ else
                 ;;
             -n|--name)
                 container_name_input=$2
+                shift 2
+                ;;
+            -i|--image)
+                image_input=$2
                 shift 2
                 ;;
             -v|--version)
@@ -75,8 +82,24 @@ else
     done
 fi
 
+if [ -z "$image_input" ]; then
+    image_base="cct-ct"
+elif [[ "$image_input" == */* ]]; then
+    if [[ "$image_input" == *:* ]]; then
+        image_name="$image_input"
+    else
+        image_name="${image_input}:$version"
+    fi
+else
+    if [[ "$image_input" == cct-ct* ]]; then
+        image_base="$image_input"
+    else
+        image_base="cct-ct-$image_input"
+    fi
+fi
+
 if [ -z "$image_name" ]; then
-    image_name="ghcr.io/brucekomike/cct-ct:$version"
+    image_name="ghcr.io/brucekomike/${image_base}:$version"
 fi
 
 if [ -z "$container_name_input" ]; then

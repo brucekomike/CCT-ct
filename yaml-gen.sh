@@ -38,7 +38,7 @@ for i in $(seq 1 "$servers"); do
     echo "      - PASSWORD=code$port" >> "$filename"
     echo "    volumes:" >> "$filename"
     echo "      - ./env$i:/root/Workspace" >> "$filename"
-    echo "      - ./opt:/opt" >> "$filename"
+    echo "      - opt-data:/opt" >> "$filename"
     # Mount certificates and override command if SSL is enabled
     if [ "$ssl_enabled" = "ssl" ] || [ "$ssl_enabled" = "true" ]; then
         echo "      - $CERT_FILE:/certs/cert.pem:ro" >> "$filename"
@@ -64,6 +64,9 @@ for i in $(seq 1 "$servers"); do
     echo "              count: all" >> "$filename"
     echo "              capabilities: [gpu]" >> "$filename"
 done
+
+echo "volumes:" >> "$filename"
+echo "  opt-data:" >> "$filename"
 
 if [ "$ssl_enabled" = "ssl" ] || [ "$ssl_enabled" = "true" ]; then
     echo ""

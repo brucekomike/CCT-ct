@@ -21,7 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # 创建 Python 虚拟环境（替代 Anaconda 环境）
 RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+ENV PATH="/root/.local/bin:/opt/venv/bin:$PATH"
 
 # 安装 code-server
 RUN curl -fsSL https://code-server.dev/install.sh | sh

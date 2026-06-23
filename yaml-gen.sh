@@ -14,10 +14,11 @@ show_usage() {
     echo "  -v, --version <version>   Image tag version (default: main)"
     echo "  -f, --filename <file>     Output filename (default: docker-compose.yaml)"
     echo "  -s, --ssl                 Enable self-signed SSL certificates"
+    echo "  -m, --claude-settings <file>  Map host .claude/settings.json into container"
     echo "  -h, --help                Show this help message"
     echo ""
     echo "Legacy positional format is still supported:"
-    echo "  $0 <servers> <port_start> [version] [image] [filename] [ssl]"
+    echo "  $0 <servers> <port_start> [version] [image] [filename] [ssl] [claude_settings]"
 }
 
 servers=5
@@ -27,6 +28,7 @@ image_input="cct-ct"
 version="main"
 filename="docker-compose.yaml"
 ssl_enabled="false"
+claude_settings_path=""
 image_name=""
 
 if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
@@ -38,6 +40,7 @@ if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
     if [ "$6" = "ssl" ] || [ "$6" = "true" ]; then
         ssl_enabled="true"
     fi
+    claude_settings_path=${7:-""}
 else
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -68,6 +71,10 @@ else
             -s|--ssl)
                 ssl_enabled="true"
                 shift
+                ;;
+            -m|--claude-settings)
+                claude_settings_path=$2
+                shift 2
                 ;;
             -h|--help)
                 show_usage
@@ -134,6 +141,11 @@ if [ "$port_start" -lt 1 ]; then
     exit 1
 fi
 
+if [ -n "$claude_settings_path" ] && [ ! -f "$claude_settings_path" ]; then
+    echo "Error: --claude-settings file not found: $claude_settings_path"
+    exit 1
+fi
+
 CERT_DIR="./certs"
 CERT_FILE="$CERT_DIR/cert.pem"
 KEY_FILE="$CERT_DIR/key.pem"
@@ -166,6 +178,9 @@ for i in $(seq 1 "$servers"); do
     echo "    volumes:" >> "$filename"
     echo "      - ./env$i:/root/Workspace" >> "$filename"
     echo "      - opt-data:/opt" >> "$filename"
+    if [ -n "$claude_settings_path" ]; then
+        echo "      - $claude_settings_path:/root/.claude/settings.json:ro" >> "$filename"
+    fi
 
     if [ "$ssl_enabled" = "true" ]; then
         echo "      - $CERT_FILE:/certs/cert.pem:ro" >> "$filename"

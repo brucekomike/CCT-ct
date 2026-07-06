@@ -15,11 +15,17 @@ show_usage() {
     echo "  -f, --filename <file>     Output filename (default: docker-compose.yaml)"
     echo "  -s, --ssl                 Enable self-signed SSL certificates"
     echo "  -m, --claude-settings <file>  Map host .claude/settings.json into container"
+    echo "  -H, --hostname <pattern>  Hostname pattern, %d replaced by instance number"
     echo "  -h, --help                Show this help message"
     echo ""
     echo "Legacy positional format is still supported:"
-    echo "  $0 <servers> <port_start> [version] [image] [filename] [ssl] [claude_settings]"
+    echo "  $0 <servers> <port_start> [version] [image] [filename] [ssl] [claude_settings] [hostname]"
 }
+
+if [[ -z "$1" ]]; then
+    show_usage
+    exit 1
+fi
 
 servers=5
 port_start=9001
@@ -29,6 +35,7 @@ version="main"
 filename="docker-compose.yaml"
 ssl_enabled="false"
 claude_settings_path=""
+hostname_pattern=""
 image_name=""
 
 if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
@@ -41,6 +48,7 @@ if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
         ssl_enabled="true"
     fi
     claude_settings_path=${7:-""}
+    hostname_pattern=${8:-""}
 else
     while [ $# -gt 0 ]; do
         case "$1" in
@@ -74,6 +82,10 @@ else
                 ;;
             -m|--claude-settings)
                 claude_settings_path=$2
+                shift 2
+                ;;
+            -H|--hostname)
+                hostname_pattern=$2
                 shift 2
                 ;;
             -h|--help)
@@ -167,45 +179,60 @@ for i in $(seq 1 "$servers"); do
         container_name="${container_name_base}-${i}"
     fi
 
-    echo "  env$i:" >> "$filename"
-    echo "    image: $image_name" >> "$filename"
-    echo "    container_name: $container_name" >> "$filename"
-    echo "    runtime: nvidia" >> "$filename"
-    echo "    ports:" >> "$filename"
-    echo "      - \"$port:8080\"" >> "$filename"
-    echo "    environment:" >> "$filename"
-    echo "      - PASS""WORD=code$port" >> "$filename"
-    echo "    volumes:" >> "$filename"
-    echo "      - ./env$i:/root/Workspace" >> "$filename"
-    echo "      - opt-data:/opt" >> "$filename"
+    tee -a "$filename" << EOF
+  env${i}:
+    image: $image_name
+    container_name: $container_name
+EOF
+
+    if [ -n "$hostname_pattern" ]; then
+        resolved_hostname=$(echo "$hostname_pattern" | sed "s/%d/${i}/g")
+        echo "    hostname: $resolved_hostname" >> "$filename"
+    fi
+
+    tee -a "$filename" << EOF
+    runtime: nvidia
+    ports:
+      - "$port:8080"
+    environment:
+      - PASSWORD=code$port
+    volumes:
+      - ./env${i}:/root/Workspace
+      - opt-data:/opt
+EOF
+
     if [ -n "$claude_settings_path" ]; then
         echo "      - $claude_settings_path:/root/.claude/settings.json:ro" >> "$filename"
     fi
 
     if [ "$ssl_enabled" = "true" ]; then
-        echo "      - $CERT_FILE:/certs/cert.pem:ro" >> "$filename"
-        echo "      - $KEY_FILE:/certs/key.pem:ro" >> "$filename"
-        echo "    command:" >> "$filename"
-        echo "      - code-server" >> "$filename"
-        echo "      - --auth" >> "$filename"
-        echo "      - password" >> "$filename"
-        echo "      - --host" >> "$filename"
-        echo "      - 0.0.0.0" >> "$filename"
-        echo "      - --port" >> "$filename"
-        echo "      - \"8080\"" >> "$filename"
-        echo "      - --cert" >> "$filename"
-        echo "      - /certs/cert.pem" >> "$filename"
-        echo "      - --cert-key" >> "$filename"
-        echo "      - /certs/key.pem" >> "$filename"
+        tee -a "$filename" << EOF
+      - $CERT_FILE:/certs/cert.pem:ro
+      - $KEY_FILE:/certs/key.pem:ro
+    command:
+      - code-server
+      - --auth
+      - password
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --cert
+      - /certs/cert.pem
+      - --cert-key
+      - /certs/key.pem
+EOF
     fi
 
-    echo "    deploy:" >> "$filename"
-    echo "      resources:" >> "$filename"
-    echo "        reservations:" >> "$filename"
-    echo "          devices:" >> "$filename"
-    echo "            - driver: nvidia" >> "$filename"
-    echo "              count: all" >> "$filename"
-    echo "              capabilities: [gpu]" >> "$filename"
+    tee -a "$filename" << EOF
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+EOF
 done
 
 echo "volumes:" >> "$filename"

@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-ENV ******
+ENV PASSWORD=password
 
 EXPOSE 8080
 

@@ -22,6 +22,14 @@ The workflow automatically discovers every `Dockerfile*` file in the repository 
 
 Each image is built in parallel using a matrix strategy.
 
+### Multi-Architecture Builds
+
+Images are built for:
+
+- `linux/amd64`
+- `linux/arm64`
+- `linux/arm/v7`
+
 ## Image Tags
 
 Images are automatically tagged using the following scheme:

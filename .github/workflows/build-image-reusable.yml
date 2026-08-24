@@ -68,5 +68,6 @@ jobs:
           platforms: ${{ inputs.platforms }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          provenance: false
           cache-from: type=gha,scope=${{ github.repository }}${{ inputs.suffix }}
           cache-to: type=gha,scope=${{ github.repository }}${{ inputs.suffix }},mode=max

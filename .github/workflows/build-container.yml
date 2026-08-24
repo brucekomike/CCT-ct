@@ -39,7 +39,8 @@ jobs:
               split("\n")[] | select(length > 0) | . as $f |
               (. | split("/")[-1]) as $name |
               (if $name == "Dockerfile" then "" else "-" + ($name | ltrimstr("Dockerfile.")) end) as $suffix |
-              {"dockerfile": $f, "suffix": $suffix}
+              (if $name == "Dockerfile" then "linux/amd64" else "linux/amd64,linux/arm64" end) as $platforms |
+              {"dockerfile": $f, "suffix": $suffix, "platforms": $platforms}
             ] | {include: .}')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
 
@@ -54,6 +55,7 @@ jobs:
       dockerfile: ${{ matrix.dockerfile }}
       suffix: ${{ matrix.suffix }}
       registry: ghcr.io
+      platforms: ${{ matrix.platforms }}
     permissions:
       contents: read
       packages: write

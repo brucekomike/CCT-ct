@@ -16,6 +16,11 @@ on:
         required: false
         type: string
         default: 'ghcr.io'
+      platforms:
+        description: 'Target platforms (e.g. linux/amd64,linux/arm64)'
+        required: false
+        type: string
+        default: 'linux/amd64,linux/arm64'
 
 jobs:
   build-and-push:
@@ -60,7 +65,7 @@ jobs:
           context: .
           file: ${{ inputs.dockerfile }}
           push: ${{ github.event_name != 'pull_request' }}
-          platforms: linux/amd64,linux/arm64
+          platforms: ${{ inputs.platforms }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ github.repository }}${{ inputs.suffix }}

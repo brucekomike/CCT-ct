@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     bash-completion \
     software-properties-common \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 # 安装 NVIDIA Container Toolkit（如果你的主机支持 GPU）

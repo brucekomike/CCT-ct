@@ -39,7 +39,7 @@ jobs:
               split("\n")[] | select(length > 0) | . as $f |
               (. | split("/")[-1]) as $name |
               (if $name == "Dockerfile" then "" else "-" + ($name | ltrimstr("Dockerfile.")) end) as $suffix |
-              (if $name == "Dockerfile" then "linux/amd64" else "linux/amd64,linux/arm64" end) as $platforms |
+              (if ($name == "Dockerfile" or $name == "Dockerfile.CD") then "linux/amd64" else "linux/amd64,linux/arm64" end) as $platforms |
               {"dockerfile": $f, "suffix": $suffix, "platforms": $platforms}
             ] | {include: .}')
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"

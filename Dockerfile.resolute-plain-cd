@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 RUN curl -fsSL https://claude.ai/install.sh | bash
+# 安装 Claude Code VS Code 插件
+RUN code-server --install-extension anthropic.claude-code
 
 ENV PATH="/root/.local/bin:$PATH"
 ENV PASSWORD=password

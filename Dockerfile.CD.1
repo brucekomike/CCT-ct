@@ -1,4 +1,4 @@
-FROM cct-ct:latest
+FROM cct-ct:main
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends     wget     gi
 
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
-ENV ******
+ENV PASSWORD=password
 
 EXPOSE 8080
 

@@ -1,4 +1,4 @@
-FROM cct-ct-noble-plain:latest
+FROM cct-ct-noble-plain:main
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -7,7 +7,7 @@ RUN curl -fsSL https://claude.ai/install.sh | bash
 RUN code-server --install-extension anthropic.claude-code
 
 ENV PATH="/root/.local/bin:$PATH"
-ENV ******
+ENV PASSWORD=password
 
 EXPOSE 8080
 

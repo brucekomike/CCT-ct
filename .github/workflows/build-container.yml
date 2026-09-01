@@ -18,7 +18,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  AMD64_ONLY_DOCKERFILES: ''
+  AMD64_ONLY_DOCKERFILES: 'Dockerfile,Dockerfile.CD,1'
 
 jobs:
   detect-dockerfiles:

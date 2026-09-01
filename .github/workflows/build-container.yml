@@ -116,6 +116,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=,format=short
 
+      - name: Set up Docker Buildx cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -129,8 +137,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
-          cache-from: type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
-          cache-to: type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+          cache-from: |
+            type=local,src=/tmp/.buildx-cache
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
+          cache-to: |
+            type=local,dest=/tmp/.buildx-cache-new,mode=max
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+
+      - name: Move Docker Buildx cache
+        if: always()
+        shell: bash
+        run: |
+          rm -rf /tmp/.buildx-cache
+          if [ -d /tmp/.buildx-cache-new ]; then
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          fi
 
   build-stage-1:
     name: Build and Push (${{ github.repository }}${{ matrix.suffix }})
@@ -171,6 +192,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=,format=short
 
+      - name: Set up Docker Buildx cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -184,8 +213,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
-          cache-from: type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
-          cache-to: type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+          cache-from: |
+            type=local,src=/tmp/.buildx-cache
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
+          cache-to: |
+            type=local,dest=/tmp/.buildx-cache-new,mode=max
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+
+      - name: Move Docker Buildx cache
+        if: always()
+        shell: bash
+        run: |
+          rm -rf /tmp/.buildx-cache
+          if [ -d /tmp/.buildx-cache-new ]; then
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          fi
 
   build-stage-2:
     name: Build and Push (${{ github.repository }}${{ matrix.suffix }})
@@ -227,6 +269,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=,format=short
 
+      - name: Set up Docker Buildx cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -240,8 +290,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
-          cache-from: type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
-          cache-to: type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+          cache-from: |
+            type=local,src=/tmp/.buildx-cache
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
+          cache-to: |
+            type=local,dest=/tmp/.buildx-cache-new,mode=max
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+
+      - name: Move Docker Buildx cache
+        if: always()
+        shell: bash
+        run: |
+          rm -rf /tmp/.buildx-cache
+          if [ -d /tmp/.buildx-cache-new ]; then
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          fi
 
   build-stage-3:
     name: Build and Push (${{ github.repository }}${{ matrix.suffix }})
@@ -284,6 +347,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=,format=short
 
+      - name: Set up Docker Buildx cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -297,8 +368,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
-          cache-from: type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
-          cache-to: type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+          cache-from: |
+            type=local,src=/tmp/.buildx-cache
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
+          cache-to: |
+            type=local,dest=/tmp/.buildx-cache-new,mode=max
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+
+      - name: Move Docker Buildx cache
+        if: always()
+        shell: bash
+        run: |
+          rm -rf /tmp/.buildx-cache
+          if [ -d /tmp/.buildx-cache-new ]; then
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          fi
 
   build-stage-4:
     name: Build and Push (${{ github.repository }}${{ matrix.suffix }})
@@ -342,6 +426,14 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=,format=short
 
+      - name: Set up Docker Buildx cache
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ github.repository }}-${{ matrix.suffix }}-
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -355,5 +447,18 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
-          cache-from: type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
-          cache-to: type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+          cache-from: |
+            type=local,src=/tmp/.buildx-cache
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }}
+          cache-to: |
+            type=local,dest=/tmp/.buildx-cache-new,mode=max
+            type=gha,scope=${{ github.repository }}${{ matrix.suffix }},mode=max
+
+      - name: Move Docker Buildx cache
+        if: always()
+        shell: bash
+        run: |
+          rm -rf /tmp/.buildx-cache
+          if [ -d /tmp/.buildx-cache-new ]; then
+            mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          fi

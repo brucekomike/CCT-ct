@@ -1,0 +1,13 @@
+FROM cct-ct:main
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends     wget     git     vim     nano     curl     zip     unzip     p7zip-full     ca-certificates     build-essential     bash-completion     software-properties-common     && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://code-server.dev/install.sh | sh
+
+ENV PASSWORD=password
+
+EXPOSE 8080
+
+CMD ["code-server", "--auth", "password", "--host", "0.0.0.0", "--port", "8080"]

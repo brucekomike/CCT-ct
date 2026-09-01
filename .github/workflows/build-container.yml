@@ -60,7 +60,7 @@ jobs:
                else {stage: 0, rest: $full_rest}
                end) as $r |
               (if $r.rest == "" then "" else "-" + $r.rest end) as $suffix |
-              (if ($r.stage > 0 or ($amd64_only_list | index($f)) != null or ($amd64_only_list | index($name)) != null) then "linux/amd64" else "linux/amd64,linux/arm64" end) as $platforms |
+              (if (($amd64_only_list | index($f)) != null or ($amd64_only_list | index($name)) != null) then "linux/amd64" else "linux/amd64,linux/arm64" end) as $platforms |
               {"dockerfile": $f, "suffix": $suffix, "platforms": $platforms, "stage": $r.stage}
             ]')
 

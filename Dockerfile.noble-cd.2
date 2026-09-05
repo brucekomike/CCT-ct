@@ -1,4 +1,5 @@
-FROM cct-ct-noble:main
+ARG BASE_IMAGE=cct-ct-noble:main
+FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PATH="/root/.local/bin:/opt/venv/bin:$PATH"

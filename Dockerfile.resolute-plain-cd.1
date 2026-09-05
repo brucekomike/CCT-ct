@@ -1,4 +1,5 @@
-FROM cct-ct-resolute-plain:latest
+ARG BASE_IMAGE=cct-ct-resolute-plain:latest
+FROM ${BASE_IMAGE}
 
 ENV DEBIAN_FRONTEND=noninteractive
 

@@ -71,7 +71,7 @@ jobs:
           fi
 
           for i in 0 1 2 3 4; do
-            m=$(echo "$all" | jq -c --argjson i "$i" '{include: [.[] | select(.stage == $i) | del(.stage)]}')
+            m=$(echo "$all" | jq -c --argjson i "$i" '{include: [.[] | select(.stage == $i)]}')
             count=$(echo "$m" | jq '.include | length')
             echo "matrix-stage-$i=$m" >> "$GITHUB_OUTPUT"
             if [ "$count" -gt 0 ]; then
@@ -133,7 +133,8 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: ${{ github.event_name != 'pull_request' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
@@ -203,39 +204,14 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Load stage 0 images locally
-        shell: bash
-        run: |
-          while IFS= read -r dockerfile; do
-            name=$(basename "$dockerfile")
-            rest=${name#Dockerfile}
-            if [[ "$rest" == .* ]]; then
-              rest=${rest#.}
-            else
-              rest=
-            fi
-            [[ "$rest" =~ \.[0-9]+$ ]] && continue
-            suffix=
-            [[ -n "$rest" ]] && suffix="-${rest}"
-            docker buildx build \
-              --load \
-              --platform linux/amd64 \
-              --tag "cct-ct${suffix}:main" \
-              --file "$dockerfile" .
-          done < <(find . -maxdepth 1 -type f -name 'Dockerfile*' | sort)
-
-      - name: Use the Docker image store for the dependent build
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver: docker
-
       - name: Build and push container image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: ${{ github.event_name != 'pull_request' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
@@ -312,7 +288,8 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: ${{ github.event_name != 'pull_request' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
@@ -390,7 +367,8 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: ${{ github.event_name != 'pull_request' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false
@@ -469,7 +447,8 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          push: ${{ github.event_name != 'pull_request' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           provenance: false

@@ -1,5 +1,6 @@
 # 使用 Ubuntu 24.04 (Noble) 作为基础镜像（无 Anaconda）
-FROM ubuntu:24.04
+ARG BASE_IMAGE=ghcr.io/brucekomike/CCT-ct-noble:main
+FROM ${BASE_IMAGE}
 
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive

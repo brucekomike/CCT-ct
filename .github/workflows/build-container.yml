@@ -60,8 +60,9 @@ jobs:
                else {stage: 0, rest: $full_rest}
                end) as $r |
               (if $r.rest == "" then "" else "-" + $r.rest end) as $suffix |
+              ({"CD": "", "noble": "-noble-plain", "noble-CD": "-noble", "noble-plain-cd": "-noble-plain", "resolute": "-resolute-plain", "resolute-plain-cd": "-resolute-plain"}[$r.rest] // $suffix) as $base_suffix |
               (if (($amd64_only_list | index($f)) != null or ($amd64_only_list | index($name)) != null) then "linux/amd64" else "linux/amd64,linux/arm64" end) as $platforms |
-              {"dockerfile": $f, "suffix": $suffix, "platforms": $platforms, "stage": $r.stage}
+              {"dockerfile": $f, "suffix": $suffix, "base_suffix": $base_suffix, "platforms": $platforms, "stage": $r.stage}
             ]')
 
           max_stage=$(echo "$all" | jq '[.[].stage] | max // 0')
@@ -125,7 +126,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.base_suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -181,7 +182,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.base_suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -238,7 +239,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.base_suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -296,7 +297,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.base_suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -355,7 +356,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           platforms: ${{ matrix.platforms }}
-          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
+          build-args: ${{ matrix.stage > 0 && format('BASE_IMAGE={0}/{1}{2}:{3}', env.REGISTRY, github.repository, matrix.base_suffix, github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && format('pr-{0}', github.event.number) || 'main') || '' }}
           push: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

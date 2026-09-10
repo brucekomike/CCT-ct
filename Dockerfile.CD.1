@@ -1,5 +1,6 @@
 # 使用 Ubuntu 作为基础镜像
-FROM ubuntu:20.04
+ARG BASE_IMAGE=ghcr.io/brucekomike/CCT-ct:main
+FROM ${BASE_IMAGE}
 
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive

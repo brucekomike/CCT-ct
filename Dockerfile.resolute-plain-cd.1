@@ -1,5 +1,6 @@
+ARG BASE_IMAGE_FALLBACK_PREFIX=
 ARG BASE_IMAGE=cct-ct-resolute-plain:main
-FROM ${BASE_IMAGE}
+FROM ${BASE_IMAGE_FALLBACK_PREFIX}${BASE_IMAGE}
 
 RUN curl -fsSL https://claude.ai/install.sh | bash
 # 安装 Claude Code VS Code 插件

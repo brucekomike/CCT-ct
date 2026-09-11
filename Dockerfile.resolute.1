@@ -1,6 +1,5 @@
-# 使用 Ubuntu 24.04 (Noble) 作为基础镜像（无 Anaconda）
-FROM ubuntu:24.04
-
+ARG BASE_IMAGE=ct-ct-resolute-plain:main
+FROM ${BASE_IMAGE}
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -26,12 +25,6 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # 安装 code-server
 RUN curl -fsSL https://code-server.dev/install.sh | sh
-
-RUN pip install --no-cache-dir \
-    tensorflow \
-    numpy \
-    opencv-python-headless \
-    matplotlib
 
 # 默认激活虚拟环境（包括 code-server 终端）
 RUN echo ". /opt/venv/bin/activate" >> /root/.bashrc

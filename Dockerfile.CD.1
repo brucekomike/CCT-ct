@@ -1,0 +1,19 @@
+# 使用 Ubuntu 作为基础镜像
+ARG BASE_IMAGE=cct-ct:main
+FROM ${BASE_IMAGE}
+
+# install claude-code
+RUN curl -fsSL https://claude.ai/install.sh | bash
+# 安装 Claude Code VS Code 插件
+RUN code-server --install-extension anthropic.claude-code
+# 安装 code-server
+
+# 设置 code-server 的密码
+# 建议在运行容器时通过环境变量设置更安全的密码
+ENV PASSWORD=password
+
+# 暴露 code-server 的端口
+EXPOSE 8080
+
+# 启动 code-server
+CMD ["code-server", "--auth", "password", "--host", "0.0.0.0", "--port", "8080"]

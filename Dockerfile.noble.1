@@ -1,6 +1,7 @@
 # 使用 Ubuntu 24.04 (Noble) 作为基础镜像（无 Anaconda）
+ARG BASE_IMAGE_FALLBACK_PREFIX=
 ARG BASE_IMAGE=cct-ct-noble-plain:main
-FROM ${BASE_IMAGE}
+FROM ${BASE_IMAGE_FALLBACK_PREFIX}${BASE_IMAGE}
 # 设置环境变量
 ENV DEBIAN_FRONTEND=noninteractive
 

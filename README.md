@@ -29,6 +29,8 @@ Images are built for:
 - `linux/amd64`
 - `linux/arm64`
 
+Each architecture is built natively (arm64 on `ubuntu-24.04-arm` runners, no QEMU emulation) and the per-arch images are then merged into one multi-arch manifest. Images listed in `AMD64_ONLY_DOCKERFILES` in the workflow (e.g. `Dockerfile`, which uses x86_64-only installers) are built for `linux/amd64` only.
+
 ## Image Tags
 
 Images are automatically tagged using the following scheme:
